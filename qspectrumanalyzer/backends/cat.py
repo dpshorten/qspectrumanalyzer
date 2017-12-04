@@ -145,7 +145,7 @@ class PowerThread(BasePowerThread):
         f = open("/home/david/metis_data/sweep_100.csv", "r")
         
         while self.alive:
-            time.sleep(0.02)
+            time.sleep(0.1)
             buf = f.readline()
             self.parse_output(buf)
 
