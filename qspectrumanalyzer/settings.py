@@ -20,7 +20,7 @@ class QSpectrumAnalyzerSettings(QtWidgets.QDialog, Ui_QSpectrumAnalyzerSettings)
         self.executableEdit.setText(settings.value("executable", "soapy_power"))
         self.deviceEdit.setText(settings.value("device", ""))
         self.lnbSpinBox.setValue(settings.value("lnb_lo", 0, float) / 1e6)
-        self.waterfallHistorySizeSpinBox.setValue(settings.value("waterfall_history_size", 100, int))
+        self.waterfallHistorySizeSpinBox.setValue(settings.value("waterfall_history_size", 200, int))
 
         backend = settings.value("backend", "soapy_power")
         try:

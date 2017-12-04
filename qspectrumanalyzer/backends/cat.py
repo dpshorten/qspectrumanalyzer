@@ -105,8 +105,12 @@ class PowerThread(BasePowerThread):
 #        print(type(buf))
         #VIstring = ','.join(['%.5f' % num for num in buf])
         data = np.fromstring(buf, sep=',')
-        data = data[10:]
-        print(len(data))
+        data = data[12:-3]
+        #print("data", data[-5:])
+        # for i in range(len(data)):
+        #     if data[i] < -110:
+        #         data[i] = -130
+#        print(len(data))
         step = (high_edge - low_edge) / len(data)
 
         #if (low_edge // 1000000) <= (self.params["start_freq"] - self.lnb_lo / 1e6):
@@ -127,7 +131,9 @@ class PowerThread(BasePowerThread):
         # otherwise sort and display the data.
         sorted_data = sorted(zip(self.databuffer["x"], self.databuffer["y"]))
         self.databuffer["x"], self.databuffer["y"] = [list(x) for x in zip(*sorted_data)]
-        #print(self.databuffer["y"][-5:])
+#        print(self.databuffer["y"][-5:])
+        #for i in range(10):
+         #   self.databuffer["y"][-i] = 0
         self.data_storage.update(self.databuffer)
 
     def run(self):
@@ -136,10 +142,10 @@ class PowerThread(BasePowerThread):
         self.alive = True
         self.powerThreadStarted.emit()
 
-        f = open("/home/david/metis_data/foo.csv", "r")
+        f = open("/home/david/metis_data/sweep_100.csv", "r")
         
         while self.alive:
-            time.sleep(0.1)
+            time.sleep(0.02)
             buf = f.readline()
             self.parse_output(buf)
 

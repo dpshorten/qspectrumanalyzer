@@ -67,7 +67,7 @@ class DataStorage(QtCore.QObject):
     peak_hold_max_updated = QtCore.Signal(object)
     peak_hold_min_updated = QtCore.Signal(object)
 
-    def __init__(self, max_history_size=100, parent=None):
+    def __init__(self, max_history_size=200, parent=None):
         super().__init__(parent)
         self.max_history_size = max_history_size
         self.smooth = False
@@ -269,7 +269,7 @@ class DataStorage(QtCore.QObject):
 
 class Test:
     """Test data storage performance"""
-    def __init__(self, data_size=100000, max_history_size=100):
+    def __init__(self, data_size=100000, max_history_size=200):
         self.data_size = data_size
         self.data = {"x": np.arange(data_size),
                      "y": None}

@@ -72,7 +72,7 @@ class QSpectrumAnalyzerMainWindow(QtWidgets.QMainWindow, Ui_QSpectrumAnalyzerMai
             self.stop()
 
         settings = QtCore.QSettings()
-        self.data_storage = DataStorage(max_history_size=settings.value("waterfall_history_size", 100, int))
+        self.data_storage = DataStorage(max_history_size=settings.value("waterfall_history_size", 10, int))
         self.data_storage.data_updated.connect(self.update_data)
         self.data_storage.data_updated.connect(self.spectrumPlotWidget.update_plot)
         self.data_storage.data_updated.connect(self.spectrumPlotWidget.update_persistence)
@@ -309,7 +309,7 @@ class QSpectrumAnalyzerMainWindow(QtWidgets.QMainWindow, Ui_QSpectrumAnalyzerMai
         self.update_progress(0)
         self.update_status_timer.start(100)
 
-        self.waterfallPlotWidget.history_size = settings.value("waterfall_history_size", 100, int)
+        self.waterfallPlotWidget.history_size = settings.value("waterfall_history_size", 200, int)
         self.waterfallPlotWidget.clear_plot()
 
         self.spectrumPlotWidget.main_curve = bool(self.mainCurveCheckBox.isChecked())
@@ -352,9 +352,9 @@ class QSpectrumAnalyzerMainWindow(QtWidgets.QMainWindow, Ui_QSpectrumAnalyzerMai
                 interval=float(self.intervalSpinBox.value()),
                 gain=float(self.gainSpinBox.value()),
                 #ppm=int(self.ppmSpinBox.value()),
-                ppm=-35,
+                ppm=0,
                 #crop=int(self.cropSpinBox.value()) / 100.0,
-                crop=20,
+                crop=0,
                 single_shot=single_shot,
                 device=settings.value("device", ""),
                 sample_rate=settings.value("sample_rate", 2560000, float),
