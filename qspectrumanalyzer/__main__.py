@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import absolute_import
+
 import sys, os, signal, time, argparse
 
 from Qt import QtCore, QtGui, QtWidgets
 
 from qspectrumanalyzer import backends
+#import qspectrumanalyzer.backends
 from qspectrumanalyzer.version import __version__
 from qspectrumanalyzer.data import DataStorage
 from qspectrumanalyzer.plot import SpectrumPlotWidget, WaterfallPlotWidget
@@ -348,8 +351,10 @@ class QSpectrumAnalyzerMainWindow(QtWidgets.QMainWindow, Ui_QSpectrumAnalyzerMai
                 float(self.binSizeSpinBox.value()),
                 interval=float(self.intervalSpinBox.value()),
                 gain=float(self.gainSpinBox.value()),
-                ppm=int(self.ppmSpinBox.value()),
-                crop=int(self.cropSpinBox.value()) / 100.0,
+                #ppm=int(self.ppmSpinBox.value()),
+                ppm=-35,
+                #crop=int(self.cropSpinBox.value()) / 100.0,
+                crop=20,
                 single_shot=single_shot,
                 device=settings.value("device", ""),
                 sample_rate=settings.value("sample_rate", 2560000, float),

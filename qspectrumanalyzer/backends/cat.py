@@ -84,15 +84,13 @@ class PowerThread(BasePowerThread):
     def process_start(self):
         """Start hackrf_sweep process"""
         if not self.process and self.params:
+            print("foo")
             settings = QtCore.QSettings()
-            cmdline = shlex.split(settings.value("executable", "cat"))
+            cmdline = shlex.split(settings.value("executable", "more"))
             cmdline.extend([
-                "~/metis_data/NUC__20171201-144914-20171201-140000Z.dat-Sweep_100.csv"
+                '/home/david/metis_data/foo.csv'
             ])
 
-            additional_params = settings.value("params", Info.additional_params)
-            if additional_params:
-                cmdline.extend(shlex.split(additional_params))
 
             print('Starting backend:')
             print(' '.join(cmdline))
@@ -102,29 +100,35 @@ class PowerThread(BasePowerThread):
 
     def parse_output(self, buf):
         """Parse one buf of output from hackrf_sweep"""
-        (low_edge, high_edge) = struct.unpack('QQ', buf[:16])
-        data = np.fromstring(buf[16:], dtype='<f4')
+        (low_edge, high_edge) = (2400, 2420)
+#        print(buf)
+#        print(type(buf))
+        #VIstring = ','.join(['%.5f' % num for num in buf])
+        data = np.fromstring(buf, sep=',')
+        data = data[10:]
+        print(len(data))
         step = (high_edge - low_edge) / len(data)
 
-        if (low_edge // 1000000) <= (self.params["start_freq"] - self.lnb_lo / 1e6):
+        #if (low_edge // 1000000) <= (self.params["start_freq"] - self.lnb_lo / 1e6):
             # Reset databuffer at the start of each sweep even if we somehow
             # did not complete the previous sweep.
-            self.databuffer = {"timestamp": [], "x": [], "y": []}
+        self.databuffer = {"timestamp": [], "x": [], "y": []}
         x_axis = list(np.arange(low_edge + self.lnb_lo + step / 2, high_edge + self.lnb_lo, step))
         self.databuffer["x"].extend(x_axis)
         for i in range(len(data)):
             self.databuffer["y"].append(data[i])
-        if (high_edge / 1e6) >= (self.params["stop_freq"] - self.lnb_lo / 1e6):
+#        if (high_edge / 1e6) >= (self.params["stop_freq"] - self.lnb_lo / 1e6):
             # We've reached the end of a pass. If it went too fast for our sweep interval, ignore it
-            t_finish = time.time()
-            if (t_finish < self.lastsweep + self.interval):
-                return
-            self.lastsweep = t_finish
+        t_finish = time.time()
+        if (t_finish < self.lastsweep + self.interval):
+            return
+        self.lastsweep = t_finish
 
-            # otherwise sort and display the data.
-            sorted_data = sorted(zip(self.databuffer["x"], self.databuffer["y"]))
-            self.databuffer["x"], self.databuffer["y"] = [list(x) for x in zip(*sorted_data)]
-            self.data_storage.update(self.databuffer)
+        # otherwise sort and display the data.
+        sorted_data = sorted(zip(self.databuffer["x"], self.databuffer["y"]))
+        self.databuffer["x"], self.databuffer["y"] = [list(x) for x in zip(*sorted_data)]
+        #print(self.databuffer["y"][-5:])
+        self.data_storage.update(self.databuffer)
 
     def run(self):
         """hackrf_sweep thread main loop"""
@@ -132,27 +136,12 @@ class PowerThread(BasePowerThread):
         self.alive = True
         self.powerThreadStarted.emit()
 
+        f = open("/home/david/metis_data/foo.csv", "r")
+        
         while self.alive:
-            try:
-                buf = self.process.stdout.read(4)
-            except AttributeError as e:
-                print(e, file=sys.stderr)
-                continue
-
-            if buf:
-                (record_length,) = struct.unpack('I', buf)
-                try:
-                    buf = self.process.stdout.read(record_length)
-                except AttributeError as e:
-                    print(e, file=sys.stderr)
-                    continue
-
-                if buf:
-                    self.parse_output(buf)
-                else:
-                    break
-            else:
-                break
+            time.sleep(0.1)
+            buf = f.readline()
+            self.parse_output(buf)
 
         self.process_stop()
         self.alive = False
