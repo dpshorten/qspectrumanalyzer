@@ -1,4 +1,8 @@
 import struct, shlex, sys, time
+import time
+
+from keras.layers import LSTM, Dense, Activation, TimeDistributed, ConvLSTM2D, Flatten, BatchNormalization
+from keras.models import Sequential
 
 import numpy as np
 from Qt import QtCore
@@ -142,11 +146,34 @@ class PowerThread(BasePowerThread):
         self.alive = True
         self.powerThreadStarted.emit()
 
-        f = open("/home/david/metis_data/sweep_100.csv", "r")
+        f = open("/home/david/metis_data/Trial 13 Mar 17__20170313-060455-20170313-060000Z.dat-Sweep_104.csv", "r")
+
+        #for i in range(10000):
+         #   f.readline()
+
+        model = Sequential()
+        model.add(ConvLSTM2D(8, (1, 5), strides = (1, 3), input_shape=(1, 1, 1280, 1), return_sequences=True, dropout = 0.25, recurrent_dropout = 0.25))
+        model.add(BatchNormalization())
+        model.add(TimeDistributed(Flatten()))
+        model.add(LSTM(64, return_sequences = True, dropout = 0.25, recurrent_dropout = 0.25))
+        model.add(BatchNormalization())
+        model.add(TimeDistributed(Dense(1, activation='sigmoid')))
+
+        model.load_weights('test_weights.h5')
         
+        i = 0
         while self.alive:
-            time.sleep(0.1)
+            time.sleep(0.05)
             buf = f.readline()
+            np_input = np.fromstring(buf, sep=',')[6:]
+            np_input = np.expand_dims(np_input, 1)
+            np_input = np.expand_dims(np_input, 0)
+            np_input = np.expand_dims(np_input, 0)
+            np_input = np.expand_dims(np_input, 0)
+            print(model.predict(np_input))
+            i += 1
+            if i % 10 == 0:
+                print(time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(int(buf.split(',')[0]))))
             self.parse_output(buf)
 
         self.process_stop()

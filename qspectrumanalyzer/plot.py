@@ -300,13 +300,26 @@ class WaterfallPlotWidget:
         if self.histogram_layout:
             self.histogram = pg.HistogramLUTItem()
             self.histogram_layout.addItem(self.histogram)
+            print(self.histogram.gradient.listTicks())
+            self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[0][0], 0.9)
+            print(self.histogram.gradient.listTicks())
             self.histogram.gradient.loadPreset("flame")
-#            self.histogram.setHistogramRange(-50, 200)
- #           self.histogram.setLevels(-50, 200)
+#            self.histogram.setHistogramRange(0, 400, padding=0.2)
+ #           self.histogram.setLevels(0, 20)
 
     def update_plot(self, data_storage):
         """Update waterfall plot"""
         self.counter += 1
+
+        
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[4][0], 0.9)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[3][0], 0.8)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[2][0], 0.7)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[1][0], 0.6)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[0][0], 0.5)
+        
+  
+        
 
         # Create waterfall image on first run
         if self.counter == 1:
@@ -315,6 +328,8 @@ class WaterfallPlotWidget:
             self.plot.clear()
             self.plot.addItem(self.waterfallImg)
 
+        
+            
         # Roll down one and replace leading edge with new data
         self.waterfallImg.setImage(data_storage.history.buffer[-self.counter:].T,
                                    autoLevels=True, autoRange=True)
