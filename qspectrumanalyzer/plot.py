@@ -1,6 +1,7 @@
 import collections, math
 
 from Qt import QtCore
+from Qt import QtGui
 import pyqtgraph as pg
 
 # Basic PyQtGraph settings
@@ -39,8 +40,9 @@ class SpectrumPlotWidget:
         self.posLabel = self.layout.addLabel(row=0, col=0, justify="right")
         self.plot = self.layout.addPlot(row=1, col=0)
         self.plot.showGrid(x=True, y=True)
-        self.plot.setLabel("left", "Power", units="dB")
-        self.plot.setLabel("bottom", "Frequency", units="Hz")
+        labelStyle = {'color': '#DDD', 'font-size': '16pt'}
+        self.plot.setLabel("left", "Power", units="dB", **labelStyle)
+        self.plot.setLabel("bottom", "Frequency", units="Hz", **labelStyle)
         self.plot.setLimits(xMin=0)
         self.plot.showButtons()
 
@@ -228,7 +230,7 @@ class SpectrumPlotWidget:
         if self.plot.sceneBoundingRect().contains(pos):
             mousePoint = self.plot.vb.mapSceneToView(pos)
             self.posLabel.setText(
-                "<span style='font-size: 12pt'>f={:0.3f} MHz, P={:0.3f} dB</span>".format(
+                "<span style='font-size: 20pt'>f={:0.6f} MHz, P={:0.6f} dB</span>".format(
                     mousePoint.x() / 1e6,
                     mousePoint.y()
                 )
@@ -285,12 +287,28 @@ class WaterfallPlotWidget:
     def create_plot(self):
         """Create waterfall plot"""
         self.plot = self.layout.addPlot()
-        self.plot.setLabel("bottom", "Frequency", units="Hz")
-        self.plot.setLabel("left", "Time")
+        labelStyle = {'color': '#DDD', 'font-size': '16pt'}
+        self.plot.setLabel("bottom", "Frequency", units="Hz", **labelStyle)
+        self.plot.setLabel("left", "Time", **labelStyle)
+
+        font=QtGui.QFont()
+        font.setPixelSize(40)
+        self.plot.getAxis("bottom").tickFont = font
+        font=QtGui.QFont()
+        font.setPixelSize(30)
+        self.plot.getAxis("left").tickFont = font
 
         self.plot.setYRange(-self.history_size, 0)
         self.plot.setLimits(xMin=0, yMax=0)
         self.plot.showButtons()
+
+
+        # xax = pg.AxisItem(orientation='bottom', linkView=viewbox)
+        # xax.setParentItem(viewbox)
+        # xax.setPos(0, viewbox.height()//2 - xax.textHeight)
+        # xax.resize(viewbox.width(), xax.height())
+
+        
         #self.plot.setAspectLocked(True)
 
         #self.plot.setDownsampling(mode="peak")
@@ -312,11 +330,11 @@ class WaterfallPlotWidget:
         self.counter += 1
 
         
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[4][0], 0.9)
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[3][0], 0.8)
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[2][0], 0.7)
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[1][0], 0.6)
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[0][0], 0.5)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[4][0], 0.8)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[3][0], 0.65)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[2][0], 0.50)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[1][0], 0.40)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[0][0], 0.3)
         
   
         

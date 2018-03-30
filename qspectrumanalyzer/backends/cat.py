@@ -1,8 +1,10 @@
 import struct, shlex, sys, time
 import time
 
-from keras.layers import LSTM, Dense, Activation, TimeDistributed, ConvLSTM2D, Flatten, BatchNormalization
+from keras.layers import LSTM, Dense, Activation, TimeDistributed, Flatten, BatchNormalization, LocallyConnected1D, MaxPooling1D, AveragePooling1D, Dropout, Conv1D
 from keras.models import Sequential
+from keras import backend as K
+import tensorflow as tf
 
 import numpy as np
 from Qt import QtCore
@@ -10,6 +12,8 @@ from Qt import QtCore
 from qspectrumanalyzer import subproc
 from qspectrumanalyzer.backends import BaseInfo, BasePowerThread
 
+from sklearn import preprocessing
+import pickle
 
 class Info(BaseInfo):
     """hackrf_sweep device metadata"""
@@ -104,12 +108,13 @@ class PowerThread(BasePowerThread):
 
     def parse_output(self, buf):
         """Parse one buf of output from hackrf_sweep"""
-        (low_edge, high_edge) = (2400, 2420)
+        (low_edge, high_edge) = (2400000000, 2900000000)
 #        print(buf)
 #        print(type(buf))
         #VIstring = ','.join(['%.5f' % num for num in buf])
         data = np.fromstring(buf, sep=',')
         data = data[12:-3]
+        data = data[0::2]
         #print("data", data[-5:])
         # for i in range(len(data)):
         #     if data[i] < -110:
@@ -146,35 +151,94 @@ class PowerThread(BasePowerThread):
         self.alive = True
         self.powerThreadStarted.emit()
 
-        f = open("/home/david/metis_data/Trial 13 Mar 17__20170313-060455-20170313-060000Z.dat-Sweep_104.csv", "r")
+        f = open("../Data Collection 20 Feb__20180220-110012-20180220-110000Z.dat-Network_100_Aoa_102_Node_101_Vector.csv", "r")
 
-        #for i in range(10000):
-         #   f.readline()
+        # model = Sequential()
 
-        model = Sequential()
-        model.add(ConvLSTM2D(8, (1, 5), strides = (1, 3), input_shape=(1, 1, 1280, 1), return_sequences=True, dropout = 0.25, recurrent_dropout = 0.25))
-        model.add(BatchNormalization())
-        model.add(TimeDistributed(Flatten()))
-        model.add(LSTM(64, return_sequences = True, dropout = 0.25, recurrent_dropout = 0.25))
-        model.add(BatchNormalization())
-        model.add(TimeDistributed(Dense(1, activation='sigmoid')))
+        # model.add(TimeDistributed(Conv1D(32, 5, strides = 1, activation = 'relu'), input_shape = (20, 1280, 1)))
+        # model.add(TimeDistributed(AveragePooling1D(4, strides = 4)))
+        # model.add(BatchNormalization())
+        # model.add(Dropout(0.5))
 
-        model.load_weights('test_weights.h5')
+        # model.add(TimeDistributed(Conv1D(32, 5, strides = 1, activation = 'relu')))
+        # model.add(TimeDistributed(AveragePooling1D(4, strides = 4)))
+        # model.add(BatchNormalization())
+        # model.add(Dropout(0.5))
+
+        # model.add(TimeDistributed(LocallyConnected1D(40, 5, strides = 1, activation = 'relu')))
+        # model.add(TimeDistributed(MaxPooling1D(3, strides = 2)))
+        # model.add(BatchNormalization())
+        # model.add(Dropout(0.5))
+
+        # model.add(TimeDistributed(LocallyConnected1D(128, 5, strides = 1, activation = 'relu')))
+        # model.add(TimeDistributed(MaxPooling1D(3, strides = 2)))
+        # model.add(BatchNormalization())
+        # #model.add(Dropout(0.25))                                                                                                                                               
+
+        # model.add(TimeDistributed(Flatten()))
+
+        # model.add(LSTM(256, dropout = 0.5, return_sequences = True, stateful = False))
+        # model.add(BatchNormalization())
+
+        # #model.add(LSTM(512, dropout = 0.5, return_sequences = True, stateful = False))                                                                                         
+        # #model.add(BatchNormalization())                                                                                                                                       
+
+        # model.add(LSTM(256, return_sequences = False, dropout = 0.5, recurrent_dropout = 0.0, stateful = False))
+        # model.add(BatchNormalization())
+
+        # #model.add(Dropout(0.5))                                                                                                                                                
+        # #model.add(Dense(64, activation = 'relu'))                                                                                                                              
+        # #model.add(BatchNormalization())                                                                                                                                        
+        # model.add(Dropout(0.5))
+
+        # model.add(Dense(1, activation='sigmoid'))
+
+
+        # fi = open("scaler.pkl", "rb")
+        # scaler = pickle.load(fi)
         
+        # model.load_weights('avpool-conv2-weights.99-0.98.hdf5')
+
+        # tf_session = K.get_session()
+
+ #       with tf_session as sess:
+  #          tf.train.Saver(tf.trainable_variables()).save(sess, './tf_model')
+
+        for i in range(300000):
+            f.readline()
+  
         i = 0
+        #storage = np.empty((1280,))
+        storage = []
         while self.alive:
-            time.sleep(0.05)
+            #time.sleep(0.001)
+            
             buf = f.readline()
-            np_input = np.fromstring(buf, sep=',')[6:]
-            np_input = np.expand_dims(np_input, 1)
-            np_input = np.expand_dims(np_input, 0)
-            np_input = np.expand_dims(np_input, 0)
-            np_input = np.expand_dims(np_input, 0)
-            print(model.predict(np_input))
+            # if len(storage) == 0:
+            #     storage = np.fromstring(buf, sep=',')[6:]
+            # else:
+            #     storage = np.vstack((storage, np.fromstring(buf, sep=',')[6:]))
+
             i += 1
-            if i % 10 == 0:
+#            if i % 20 == 0:
+            #     #print(storage[0, :10])
+            #     storage = scaler.transform(storage)
+            #     #print(storage[0, :10])
+            #     storage = np.expand_dims(storage, 0)
+            #     storage = np.expand_dims(storage, 3)
+            #     val = model.predict(storage)[0][0]
+            #     print(val)
+            #     if val > 0.5:
+            #         print("DRONE!!!!!")
+            #     storage = []
+            #     #model.reset_states()
+
+            if i % 20 == 0:
+                self.parse_output(buf)
+
+            if i % 1000 == 0:
                 print(time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(int(buf.split(',')[0]))))
-            self.parse_output(buf)
+                print(i)
 
         self.process_stop()
         self.alive = False

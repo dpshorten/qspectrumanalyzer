@@ -133,7 +133,7 @@ class QSpectrumAnalyzerSettingsHelp(QtWidgets.QDialog, Ui_QSpectrumAnalyzerSetti
         super().__init__(parent)
         self.setupUi(self)
 
-        monospace_font = QtGui.QFont('monospace')
+        monospace_font = QtGui.QFont('monospace', pointSize = 20)
         monospace_font.setStyleHint(QtGui.QFont.Monospace)
         self.helpTextEdit.setFont(monospace_font)
         self.helpTextEdit.setPlainText(text)
