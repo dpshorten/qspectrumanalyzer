@@ -1,9 +1,9 @@
 import struct, shlex, sys, time
 import time
 
-from keras.layers import LSTM, Dense, Activation, TimeDistributed, Flatten, BatchNormalization, LocallyConnected1D, MaxPooling1D, AveragePooling1D, Dropout, Conv1D
-from keras.models import Sequential
-from keras import backend as K
+#from keras.layers import LSTM, Dense, Activation, TimeDistributed, Flatten, BatchNormalization, LocallyConnected1D, MaxPooling1D, AveragePooling1D, Dropout, Conv1D
+#from keras.models import Sequential
+#from keras import backend as K
 import tensorflow as tf
 
 import numpy as np
@@ -12,7 +12,7 @@ from Qt import QtCore
 from qspectrumanalyzer import subproc
 from qspectrumanalyzer.backends import BaseInfo, BasePowerThread
 
-from sklearn import preprocessing
+#from sklearn import preprocessing
 import pickle
 
 class Info(BaseInfo):
@@ -95,13 +95,13 @@ class PowerThread(BasePowerThread):
             print("foo")
             settings = QtCore.QSettings()
             cmdline = shlex.split(settings.value("executable", "more"))
-            cmdline.extend([
-                '/home/david/metis_data/foo.csv'
-            ])
+            #cmdline.extend([
+             #   '/home/david/metis_data/foo.csv'
+            #])
 
 
-            print('Starting backend:')
-            print(' '.join(cmdline))
+            #print('Starting backend:')
+            #print(' '.join(cmdline))
             print()
             self.process = subproc.Popen(cmdline, stdout=subproc.PIPE,
                                             universal_newlines=False, console=False)
@@ -151,8 +151,8 @@ class PowerThread(BasePowerThread):
         self.alive = True
         self.powerThreadStarted.emit()
 
-        f = open("../Data Collection 20 Feb__20180220-110012-20180220-110000Z.dat-Network_100_Aoa_102_Node_101_Vector.csv", "r")
-
+        f = open("/media/david/Wabbit/foo/Data Collect - 18 May__20180518-155159_Network100_Node101_Data_1.ndf-Network_0_Sweep_101_Node_0.csv", "r")
+        #f = open("../Data Collection 20 Feb__20180220-140631-20180220-140000Z.dat-Network_100_Sweep_105_Node_101.csv", "r")
         # model = Sequential()
 
         # model.add(TimeDistributed(Conv1D(32, 5, strides = 1, activation = 'relu'), input_shape = (20, 1280, 1)))
@@ -204,8 +204,8 @@ class PowerThread(BasePowerThread):
  #       with tf_session as sess:
   #          tf.train.Saver(tf.trainable_variables()).save(sess, './tf_model')
 
-        for i in range(300000):
-            f.readline()
+        #for i in range(200000):
+         #   f.readline()
   
         i = 0
         #storage = np.empty((1280,))

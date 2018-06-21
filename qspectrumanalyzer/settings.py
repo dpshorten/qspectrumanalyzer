@@ -1,4 +1,4 @@
-from Qt import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from qspectrumanalyzer import backends
 
@@ -51,14 +51,14 @@ class QSpectrumAnalyzerSettings(QtWidgets.QDialog, Ui_QSpectrumAnalyzerSettings)
             self.backendComboBox.setCurrentIndex(i)
         self.backendComboBox.blockSignals(False)
 
-    @QtCore.Slot()
+    @QtCore.pyqtSlot()
     def on_executableButton_clicked(self):
         """Open file dialog when button is clicked"""
         filename = QtWidgets.QFileDialog.getOpenFileName(self, self.tr("Select executable - QSpectrumAnalyzer"))[0]
         if filename:
             self.executableEdit.setText(filename)
 
-    @QtCore.Slot()
+    @QtCore.pyqtSlot()
     def on_paramsHelpButton_clicked(self):
         """Open additional parameters help dialog when button is clicked"""
         try:
@@ -75,7 +75,7 @@ class QSpectrumAnalyzerSettings(QtWidgets.QDialog, Ui_QSpectrumAnalyzerSettings)
         self.params_help_dialog.raise_()
         self.params_help_dialog.activateWindow()
 
-    @QtCore.Slot()
+    @QtCore.pyqtSlot()
     def on_deviceHelpButton_clicked(self):
         """Open device help dialog when button is clicked"""
         try:
@@ -92,7 +92,7 @@ class QSpectrumAnalyzerSettings(QtWidgets.QDialog, Ui_QSpectrumAnalyzerSettings)
         self.device_help_dialog.raise_()
         self.device_help_dialog.activateWindow()
 
-    @QtCore.Slot(str)
+    @QtCore.pyqtSlot(str)
     def on_backendComboBox_currentIndexChanged(self, text):
         """Change executable when backend is changed"""
         self.executableEdit.setText(text)

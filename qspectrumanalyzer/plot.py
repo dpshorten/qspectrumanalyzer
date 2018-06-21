@@ -1,7 +1,7 @@
 import collections, math
 
-from Qt import QtCore
-from Qt import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 import pyqtgraph as pg
 
 # Basic PyQtGraph settings
@@ -330,11 +330,11 @@ class WaterfallPlotWidget:
         self.counter += 1
 
         
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[4][0], 0.8)
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[3][0], 0.65)
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[2][0], 0.50)
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[1][0], 0.40)
-        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[0][0], 0.3)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[4][0], 0.95)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[3][0], 0.85)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[2][0], 0.7)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[1][0], 0.6)
+        self.histogram.gradient.setTickValue(self.histogram.gradient.listTicks()[0][0], 0.5)
         
   
         
