@@ -2,6 +2,8 @@ import os, threading, shlex
 
 from Qt import QtCore
 
+#from PyQt5 import QtCore
+
 from qspectrumanalyzer import subproc
 
 
@@ -69,7 +71,7 @@ class BasePowerThread(QtCore.QThread):
         self.alive = False
         self.wait()
 
-    def setup(self, start_freq, stop_freq, bin_size, interval=10.0, gain=-1, ppm=0, crop=0,
+    def setup(self, start_freq, stop_freq, bin_size, interval=0.0, gain=-1, ppm=0, crop=0,
               single_shot=False, device=0, sample_rate=2560000, bandwidth=0, lnb_lo=0):
         """Setup power process params"""
         raise NotImplementedError

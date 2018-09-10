@@ -141,7 +141,7 @@ class Ui_QSpectrumAnalyzerMainWindow(object):
         self.binSizeSpinBox.setDecimals(3)
         self.binSizeSpinBox.setMinimum(0.0)
         self.binSizeSpinBox.setMaximum(10000.0)
-        self.binSizeSpinBox.setProperty("value", 10.0)
+        self.binSizeSpinBox.setProperty("value", 0.0)
         self.binSizeSpinBox.setObjectName("binSizeSpinBox")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.binSizeSpinBox)
         spacerItem1 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)

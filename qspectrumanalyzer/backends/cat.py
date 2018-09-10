@@ -1,6 +1,8 @@
 import struct, shlex, sys, time
 import time
 
+import scipy.signal as sig
+
 #from keras.layers import LSTM, Dense, Activation, TimeDistributed, Flatten, BatchNormalization, LocallyConnected1D, MaxPooling1D, AveragePooling1D, Dropout, Conv1D
 #from keras.models import Sequential
 #from keras import backend as K
@@ -106,15 +108,66 @@ class PowerThread(BasePowerThread):
             self.process = subproc.Popen(cmdline, stdout=subproc.PIPE,
                                             universal_newlines=False, console=False)
 
-    def parse_output(self, buf):
+    def parse_output(self, buf, buf_bg, buf_history, buf_bg_history):
         """Parse one buf of output from hackrf_sweep"""
         (low_edge, high_edge) = (2400000000, 2900000000)
 #        print(buf)
 #        print(type(buf))
         #VIstring = ','.join(['%.5f' % num for num in buf])
+        
+        # np_buf_history = np.zeros((200, 3248), dtype=np.float32)
+        # for i in range(len(buf_history)):
+        #     np_buf_history[i, :] = np.fromstring(buf_history[i], sep=',')[6:]
+
+        # np_buf_history = sig.convolve2d(np_buf_history, np.ones((5, 5))/25, mode = 'same')
+
+        # np_buf_bg_history = np.zeros((200, 3248), dtype=np.float32)
+        # for i in range(len(buf_bg_history)):
+        #     np_buf_bg_history[i, :] = np.fromstring(buf_bg_history[i], sep=',')[6:]
+
+        # np_buf_bg_history = sig.convolve2d(np_buf_bg_history, np.ones((5, 5))/25, mode = 'same')
+
+        # np_buf_history = np.reshape(np_buf_history, (200 * 3248,))
+        # np_buf_history = np.sort(np_buf_history)
+        # np_buf_bg_history = np.reshape(np_buf_bg_history, (200 * 3248,))
+        # np_buf_bg_history = np.sort(np_buf_bg_history)
+
+        # SIG_C = np.mean(np_buf_bg_history[1000:200000]) - np.mean(np_buf_history[-20000:-5000]) + 3
+
+        # print(SIG_C, np.mean(np_buf_bg_history[1000:200000]), np.mean(np_buf_history[-20000:-5000]))
+
+
+
+        
         data = np.fromstring(buf, sep=',')
         data = data[12:-3]
-        data = data[0::2]
+
+
+        
+        data = np.convolve(data[:], np.ones(11)/float(11), mode = 'valid')
+        
+        #low_values_flags = data < -120  # Where values are low
+        #data[low_values_flags] = -130        
+
+        #data_bg = np.fromstring(buf_bg, sep=',')
+        #data_bg = data_bg[12:-3]
+
+        #BG_C = 0.0
+
+
+        #data = (10 * np.log10(np.power(10, ((BG_C + data_bg)/10)) + np.power(10, ((SIG_C + data)/10))))
+
+        
+        
+        # #print(data[:5])
+        # data[:] += 122.0
+        # data[:] /=2
+        # #data[:] += 0.1
+        # data[:] +=  0.1 * np.power(data, 2)
+        # data[:] *=2
+        # data[:] -= 122.0
+        #print(data[:5])
+        #exit()
         #print("data", data[-5:])
         # for i in range(len(data)):
         #     if data[i] < -110:
@@ -133,7 +186,7 @@ class PowerThread(BasePowerThread):
 #        if (high_edge / 1e6) >= (self.params["stop_freq"] - self.lnb_lo / 1e6):
             # We've reached the end of a pass. If it went too fast for our sweep interval, ignore it
         t_finish = time.time()
-        if (t_finish < self.lastsweep + self.interval):
+        if (t_finish < self.lastsweep + 0.0):
             return
         self.lastsweep = t_finish
 
@@ -146,74 +199,65 @@ class PowerThread(BasePowerThread):
         self.data_storage.update(self.databuffer)
 
     def run(self):
-        """hackrf_sweep thread main loop"""
+        """hackrf_swep thread main loop"""
         self.process_start()
         self.alive = True
         self.powerThreadStarted.emit()
 
-        f = open("/media/david/Wabbit/foo/Data Collect - 18 May__20180518-155159_Network100_Node101_Data_1.ndf-Network_0_Sweep_101_Node_0.csv", "r")
+        # = open("/media/david/Wabbit/foo/Data Collect - 18 May__20180518-155159_Network100_Node101_Data_1.ndf-Network_0_Sweep_101_Node_0.csv", "r")
+        #f = open("/media/david/Wabbit/Collection 20 Feb 18/Converted files/Data Collection 20 Feb__20180220-110012-20180220-110000Z.dat-Network_100_Sweep_105_Node_101.csv", buffering = 1000)
+        #f = open("../Data Collection 20 Feb__20180220-110012-20180220-110000Z.dat-Network_101_Sweep_100_Node_100.csv", "r")
+        #f = open("../Data Collection 20 Feb__20180220-140631-20180220-140000Z.dat-Network_100_Sweep_105_Node_101.csv", "r")
+        #f = open("../MetisOfficeAmbient__20180619-165624-Network_100_Sweep_100_Node_100.csv", "r")
+        #f = open("../Data Collection 20 Feb__20180220-134503-20180220-130000Z.dat-Network_100_Sweep_105_Node_101.csv", "r")
+        #f = open("../FaintDroneAndControllerValidationSet__20180709-110436-Network_100_Sweep_100_Node_100_downsampled.csv", "r")
+        f = open("../FaintDroneAndControllerValidationSet__20180709-110436-Network_100_Sweep_100_Node_100_downsampled.csv", "r")
+        #f = open("../Data Collect - 18 May__20180620-115903-Network_100_Sweep_101_Node_101.csv", "r")
         #f = open("../Data Collection 20 Feb__20180220-140631-20180220-140000Z.dat-Network_100_Sweep_105_Node_101.csv", "r")
         # model = Sequential()
 
-        # model.add(TimeDistributed(Conv1D(32, 5, strides = 1, activation = 'relu'), input_shape = (20, 1280, 1)))
-        # model.add(TimeDistributed(AveragePooling1D(4, strides = 4)))
-        # model.add(BatchNormalization())
-        # model.add(Dropout(0.5))
-
-        # model.add(TimeDistributed(Conv1D(32, 5, strides = 1, activation = 'relu')))
-        # model.add(TimeDistributed(AveragePooling1D(4, strides = 4)))
-        # model.add(BatchNormalization())
-        # model.add(Dropout(0.5))
-
-        # model.add(TimeDistributed(LocallyConnected1D(40, 5, strides = 1, activation = 'relu')))
-        # model.add(TimeDistributed(MaxPooling1D(3, strides = 2)))
-        # model.add(BatchNormalization())
-        # model.add(Dropout(0.5))
-
-        # model.add(TimeDistributed(LocallyConnected1D(128, 5, strides = 1, activation = 'relu')))
-        # model.add(TimeDistributed(MaxPooling1D(3, strides = 2)))
-        # model.add(BatchNormalization())
-        # #model.add(Dropout(0.25))                                                                                                                                               
-
-        # model.add(TimeDistributed(Flatten()))
-
-        # model.add(LSTM(256, dropout = 0.5, return_sequences = True, stateful = False))
-        # model.add(BatchNormalization())
-
-        # #model.add(LSTM(512, dropout = 0.5, return_sequences = True, stateful = False))                                                                                         
-        # #model.add(BatchNormalization())                                                                                                                                       
-
-        # model.add(LSTM(256, return_sequences = False, dropout = 0.5, recurrent_dropout = 0.0, stateful = False))
-        # model.add(BatchNormalization())
-
-        # #model.add(Dropout(0.5))                                                                                                                                                
-        # #model.add(Dense(64, activation = 'relu'))                                                                                                                              
-        # #model.add(BatchNormalization())                                                                                                                                        
-        # model.add(Dropout(0.5))
-
-        # model.add(Dense(1, activation='sigmoid'))
-
-
-        # fi = open("scaler.pkl", "rb")
-        # scaler = pickle.load(fi)
+        #f_bg = open("../Untitled__20180626-135606_Network100_Node100_Data_1.ndf-Network_0_Sweep_100_Node_0_d.csv", "r")
         
-        # model.load_weights('avpool-conv2-weights.99-0.98.hdf5')
-
-        # tf_session = K.get_session()
-
- #       with tf_session as sess:
-  #          tf.train.Saver(tf.trainable_variables()).save(sess, './tf_model')
-
-        #for i in range(200000):
-         #   f.readline()
-  
         i = 0
         #storage = np.empty((1280,))
         storage = []
-        while self.alive:
-            #time.sleep(0.001)
-            
+        buf = f.readline()
+        buf = f.readline()
+        #buf_bg = f_bg.readline()
+        buf_bg = f.readline()
+        #for k in range(int(5e5)):
+        #for k in range(int(2.6e4)):
+         #   buf = f.readline()
+
+        #for k in range(int(3.7e5)):
+        for k in range(int(4.7e4)):
             buf = f.readline()
+
+        buf_history = []
+        buf_bg_history = []
+        for k in range(200):
+            buf_history.append(f.readline())
+            buf_bg_history.append(f.readline())
+            
+        prev_time = int(buf.split(',')[0])
+        freq_tracker = 0
+        while self.alive:
+            buf = f.readline()
+            #buf_bg = f_bg.readline()
+
+            #buf_history.append(buf[:])
+            #buf_history.pop(0)
+            #buf_bg_history.append(buf_bg[:])
+            #buf_bg_history.pop(0)
+            
+            time_now = int(buf.split(',')[0])
+            if time_now > prev_time:
+                prev_time = time_now
+                #print("freq", freq_tracker)
+                freq_tracker = 0
+            else:
+                freq_tracker += 1
+
             # if len(storage) == 0:
             #     storage = np.fromstring(buf, sep=',')[6:]
             # else:
@@ -233,10 +277,12 @@ class PowerThread(BasePowerThread):
             #     storage = []
             #     #model.reset_states()
 
-            if i % 20 == 0:
-                self.parse_output(buf)
+            if i % 1 == 0:
+                #buf_bg = f_bg.readline()
+                self.parse_output(buf, buf_bg, buf_history, buf_bg_history)
+                time.sleep(0.01)
 
-            if i % 1000 == 0:
+            if i % 5 == 0:
                 print(time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(int(buf.split(',')[0]))))
                 print(i)
 
